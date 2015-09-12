@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+
+set_time_limit(0);
+
+require_once __DIR__ . '/../../app/bootstrap.php.cache';
+require_once __DIR__ . '/../../app/AppKernel.php';
+
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+$input = new ArgvInput();
+$searchString = $input->getFirstArgument();
+
+exit(realpath(parse($searchString)) . "\n");
+
+function parse($searchString) {
+    if (isResource($searchString)) {
+        return getFileNameOfResource($searchString);
+    }
+
+    if (isFullClass($searchString)) {
+        return getFileNameForClass($searchString);
+    }
+
+    try {
+        $serviceClass = getClassOfService($searchString);
+        return getFileNameForClass($serviceClass);
+    } catch (ServiceNotFoundException $e) {
+        return getFirstPhpFileNamedLike($searchString);
+    }
+}
+
+function isResource($searchString) {
+    return $searchString[0] == '@';
+}
+
+function getFileNameOfResource($searchString) {
+    return getKernel()->locateResource($searchString);
+}
+
+function getKernel()
+{
+    $kernel = new AppKernel('dev', true);
+    $kernel->boot();
+    return $kernel;
+}
+
+function isFullClass($searchString) {
+    return strpos($searchString, '\\') !== false;
+}
+
+function getFileNameForClass($searchString) {
+    $reflector = new \ReflectionClass($searchString);
+    return $reflector->getFileName();
+}
+
+function getClassOfService($searchString) {
+    return get_class(getKernel()->getContainer()->get($searchString));
+}
+
+function getFirstPhpFileNamedLike($searchString) {
+    $directory = new \RecursiveDirectoryIterator(__DIR__ . '/../..');
+    $iterator = new \RecursiveIteratorIterator($directory);
+    $regex = new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
+
+    foreach ($regex as $file) {
+        if (endsWith($file[0], $searchString . ".php")) {
+            return $file[0];
+        }
+    }
+}
+
+function endsWith($haystack, $needle) {
+    return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== FALSE);
+}
