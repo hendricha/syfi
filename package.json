@@ -2,7 +2,7 @@
   "name": "syfi",
   "main": "./lib/syfi",
   "version": "0.2.0",
-  "description": "Find in a symfony project",
+  "description": "Find stuff in a Symfony project",
   "keywords": [],
   "activationCommands": {
     "atom-workspace": "syfi:find"
