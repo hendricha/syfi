@@ -1,5 +1,5 @@
 {CompositeDisposable} = require 'atom'
-exec = require('child_process').exec;
+exec = require('child_process').exec
 SymfonyFinder = require './symfonyFinder'
 
 module.exports = Syfi =
