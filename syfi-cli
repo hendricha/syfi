@@ -16,6 +16,10 @@ $path = parse($searchString);
 exit(($path ? realpath($path) : '') . "\n");
 
 function parse($searchString) {
+    if (isTwigTemplate($searchString)) {
+        return getFileNameFromTwigTemplate($searchString);
+    }
+
     if (isResource($searchString)) {
         return getFileNameOfResource($searchString);
     }
@@ -32,12 +36,21 @@ function parse($searchString) {
     }
 }
 
-function isResource($searchString) {
-    return $searchString[0] == '@';
+function isTwigTemplate($searchString) {
+    return endsWith($searchString, '.twig');
 }
 
-function getFileNameOfResource($searchString) {
-    return getKernel()->locateResource($searchString);
+function endsWith($haystack, $needle) {
+    return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== FALSE);
+}
+
+function getFileNameFromTwigTemplate($searchString) {
+    $container = getKernel()->getContainer();
+
+    $parser = $container->get('templating.name_parser');
+    $locator = $container->get('templating.locator');
+
+    return $locator->locate($parser->parse($searchString));
 }
 
 function getKernel()
@@ -45,6 +58,14 @@ function getKernel()
     $kernel = new AppKernel('dev', true);
     $kernel->boot();
     return $kernel;
+}
+
+function isResource($searchString) {
+    return $searchString[0] == '@';
+}
+
+function getFileNameOfResource($searchString) {
+    return getKernel()->locateResource($searchString);
 }
 
 function isFullClass($searchString) {
@@ -70,8 +91,4 @@ function getFirstPhpFileNamedLike($searchString) {
             return $file[0];
         }
     }
-}
-
-function endsWith($haystack, $needle) {
-    return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== FALSE);
 }
