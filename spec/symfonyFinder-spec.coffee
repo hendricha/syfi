@@ -7,11 +7,14 @@ describe "SymfonyFinder", ->
   beforeEach ->
     editorMock = getSelectedText: ->
     atomMock =
+      config: get: -> ''
       project: rootDirectories: [ path: '/home/foo/bar' ]
       workspace:
         paneContainer: activePane: activeItem: editorMock
         open: ->
-      notifications: addInfo: ->
+      notifications:
+        addInfo: ->
+        addError: ->
     childProcessMock = exec: (cmd, options, callback) ->
         callback(null, '/home/foo/bar/someFile.php', '')
 
@@ -19,6 +22,7 @@ describe "SymfonyFinder", ->
       .andReturn 'foo'
     spyOn atomMock.workspace, 'open'
     spyOn atomMock.notifications, 'addInfo'
+    spyOn atomMock.notifications, 'addError'
 
   describe "findSelection", ->
     it "should attempt to find current selected text with the cli command", ->
@@ -32,7 +36,7 @@ describe "SymfonyFinder", ->
         .toEqual "#{path.normalize(__dirname + '/..')}/lib/../syfi-cli 'foo'"
 
       expect(childProcessMock.exec.mostRecentCall.args[1])
-        .toEqual cwd: '/home/foo/bar'
+        .toEqual cwd: '/home/foo/bar', env: undefined
 
       expect(typeof childProcessMock.exec.mostRecentCall.args[2])
         .toEqual 'function'
@@ -61,3 +65,23 @@ describe "SymfonyFinder", ->
 
       expect(atomMock.workspace.open).not.toHaveBeenCalled()
       expect(atomMock.notifications.addInfo).toHaveBeenCalled()
+
+    it "should add environment variable if app folder is overriden", ->
+      spyOn(childProcessMock, 'exec').andCallThrough()
+      atomMock.config.get = -> '/some/configure/path'
+
+      do (new SymfonyFinder childProcessMock.exec, atomMock).findSelection
+
+      env = childProcessMock.exec.mostRecentCall.args[1].env
+      expect(env.SYMFONY_APP_FOLDER).toEqual '/some/configure/path'
+
+    it "should show message if cli could not found required php files", ->
+      childProcessMock.exec = (cmd, options, callback) ->
+        callback new Error '
+          PHP Fatal error:  require_once(): Failed opening required
+        '
+
+      do (new SymfonyFinder childProcessMock.exec, atomMock).findSelection
+
+      expect(atomMock.workspace.open).not.toHaveBeenCalled()
+      expect(atomMock.notifications.addError).toHaveBeenCalled()

@@ -1,3 +1,5 @@
+_ = require 'underscore'
+
 module.exports = class SymfonyFinder
   constructor: (@exec, @atom) ->
 
@@ -5,9 +7,20 @@ module.exports = class SymfonyFinder
     editor = @atom.workspace.paneContainer.activePane.activeItem
     folder = @atom.project.rootDirectories[0].path
     @exec "#{__dirname}/../syfi-cli '#{editor.getSelectedText()}'",
-      { cwd: folder }, @openResult
+      { cwd: folder, env: do @getEnvironmentValues }, @openResult
+
+  getEnvironmentValues: ->
+    if '' isnt @atom.config.get 'syfi.appFolderOverride'
+      return _.extend {
+        'SYMFONY_APP_FOLDER': @atom.config.get 'syfi.appFolderOverride'
+      }, process.env
 
   openResult: (error, stdout, stderr) =>
+    if @requireError error
+      return @showMessage 'Error', '
+        Could not find required php files. Maybe configure the app folder
+        override in the syfi package settings?
+      '
     if error? or stderr?.length
       throw new Error "
         syfi exec error:
@@ -15,8 +28,15 @@ module.exports = class SymfonyFinder
         #{stderr?.toString() or ''}
       "
 
-    return @showMessage 'Selction could not be found' if stdout.toString().trim() is ''
+    if stdout.toString().trim() is ''
+      return @showMessage 'Info', 'Selction could not be found'
+
     @atom.workspace.open stdout.toString().trim()
 
-  showMessage: (message) ->
-    @atom.notifications.addInfo 'Could not find selection'
+  requireError: (error) ->
+    error? and -1 isnt error.message?.indexOf '
+      PHP Fatal error:  require_once(): Failed opening required
+    '
+
+  showMessage: (type, message) ->
+    @atom.notifications["add#{type}"] message
