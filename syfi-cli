@@ -11,8 +11,9 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 $input = new ArgvInput();
 $searchString = $input->getFirstArgument();
+$path = parse($searchString);
 
-exit(realpath(parse($searchString)) . "\n");
+exit(($path ? realpath($path) : '') . "\n");
 
 function parse($searchString) {
     if (isResource($searchString)) {
