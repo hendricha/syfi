@@ -3,8 +3,8 @@
 
 set_time_limit(0);
 
-require_once __DIR__ . '/../../app/bootstrap.php.cache';
-require_once __DIR__ . '/../../app/AppKernel.php';
+require_once getcwd() . '/app/bootstrap.php.cache';
+require_once getcwd() . '/app/AppKernel.php';
 
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -60,7 +60,7 @@ function getClassOfService($searchString) {
 }
 
 function getFirstPhpFileNamedLike($searchString) {
-    $directory = new \RecursiveDirectoryIterator(__DIR__ . '/../..');
+    $directory = new \RecursiveDirectoryIterator(getcwd());
     $iterator = new \RecursiveIteratorIterator($directory);
     $regex = new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
 
