@@ -1,0 +1,7 @@
+'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Find in Symfony project'
+      'command': 'syfi:find'
+    }
+  ]
