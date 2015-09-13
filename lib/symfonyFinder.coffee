@@ -4,7 +4,7 @@ module.exports = class SymfonyFinder
   findSelection: ->
     editor = @atom.workspace.paneContainer.activePane.activeItem
     folder = @atom.project.rootDirectories[0].path
-    @exec "#{__dirname}/../cli '#{editor.getSelectedText()}'",
+    @exec "#{__dirname}/../syfi-cli '#{editor.getSelectedText()}'",
       { cwd: folder }, @openResult
 
   openResult: (error, stdout, stderr) =>

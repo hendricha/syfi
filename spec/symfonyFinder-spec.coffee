@@ -27,7 +27,7 @@ describe "SymfonyFinder", ->
       expect(editorMock.getSelectedText)
         .toHaveBeenCalled()
       expect(childProcessMock.exec.mostRecentCall.args[0])
-        .toEqual "#{path.normalize(__dirname + '/..')}/lib/../cli 'foo'"
+        .toEqual "#{path.normalize(__dirname + '/..')}/lib/../syfi-cli 'foo'"
       expect(childProcessMock.exec.mostRecentCall.args[1])
         .toEqual cwd: '/home/foo/bar', ->
       expect(typeof childProcessMock.exec.mostRecentCall.args[2])
