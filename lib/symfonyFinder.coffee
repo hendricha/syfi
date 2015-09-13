@@ -14,4 +14,9 @@ module.exports = class SymfonyFinder
         #{error?.message or ''}
         #{stderr?.toString() or ''}
       "
+
+    return @showMessage 'Selction could not be found' if stdout.toString().trim() is ''
     @atom.workspace.open stdout.toString().trim()
+
+  showMessage: (message) ->
+    @atom.notifications.addInfo 'Could not find selection'
