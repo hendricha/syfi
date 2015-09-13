@@ -1,10 +1,9 @@
 {
   "name": "syfi",
   "main": "./lib/syfi",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Find in a symfony project",
-  "keywords": [
-  ],
+  "keywords": [],
   "activationCommands": {
     "atom-workspace": "syfi:find"
   },
@@ -13,6 +12,5 @@
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
