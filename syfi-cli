@@ -3,8 +3,11 @@
 
 set_time_limit(0);
 
-require_once getcwd() . '/app/bootstrap.php.cache';
-require_once getcwd() . '/app/AppKernel.php';
+$appFolder = getenv('SYMFONY_APP_FOLDER') ?
+    getenv('SYMFONY_APP_FOLDER') : (getcwd() . '/app');
+
+require_once $appFolder . '/bootstrap.php.cache';
+require_once $appFolder . '/AppKernel.php';
 
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
