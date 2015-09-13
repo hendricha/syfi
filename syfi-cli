@@ -20,6 +20,11 @@ function parse($searchString) {
         return getFileNameFromTwigTemplate($searchString);
     }
 
+    if (isDoctrineModel($searchString)) {
+        $modelClass = getClassOfDoctrineModel($searchString);
+        return getFileNameForClass($modelClass);
+    }
+
     if (isResource($searchString)) {
         return getFileNameOfResource($searchString);
     }
@@ -60,6 +65,22 @@ function getKernel()
     return $kernel;
 }
 
+function isDoctrineModel($searchString) {
+    return substr_count($searchString, ':') == 1;
+}
+
+function getClassOfDoctrineModel($searchString) {
+    list($namespaceAlias, $simpleClassName) = explode(':', $searchString);
+    return getKernel()->getContainer()
+        ->get('doctrine')->getManager()->getConfiguration()
+        ->getEntityNamespace($namespaceAlias) . '\\' . $simpleClassName;
+}
+
+function getFileNameForClass($searchString) {
+    $reflector = new \ReflectionClass($searchString);
+    return $reflector->getFileName();
+}
+
 function isResource($searchString) {
     return $searchString[0] == '@';
 }
@@ -70,11 +91,6 @@ function getFileNameOfResource($searchString) {
 
 function isFullClass($searchString) {
     return strpos($searchString, '\\') !== false;
-}
-
-function getFileNameForClass($searchString) {
-    $reflector = new \ReflectionClass($searchString);
-    return $reflector->getFileName();
 }
 
 function getClassOfService($searchString) {
