@@ -1,3 +1,7 @@
+## 0.5.0
+* Show a message if nothing was selected
+* Put the php code in a namespace to avoid conflict
+
 ## 0.4.0
 * App folder can be configured
 * Nice message if needed php files could not be required
