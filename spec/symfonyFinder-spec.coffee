@@ -85,3 +85,19 @@ describe "SymfonyFinder", ->
 
       expect(atomMock.workspace.open).not.toHaveBeenCalled()
       expect(atomMock.notifications.addError).toHaveBeenCalled()
+
+    it "should show a message if nothing was selected", ->
+      editorMock.getSelectedText = -> ''
+
+      do (new SymfonyFinder childProcessMock.exec, atomMock).findSelection
+
+      expect(atomMock.workspace.open).not.toHaveBeenCalled()
+      expect(atomMock.notifications.addError).toHaveBeenCalled()
+
+    it "should show a message if not even an editor panel exists", ->
+      atomMock.workspace.paneContainer = null
+
+      do (new SymfonyFinder childProcessMock.exec, atomMock).findSelection
+
+      expect(atomMock.workspace.open).not.toHaveBeenCalled()
+      expect(atomMock.notifications.addError).toHaveBeenCalled()
