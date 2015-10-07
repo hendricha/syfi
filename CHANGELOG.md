@@ -1,3 +1,6 @@
+## 0.5.1
+* Fix a typo
+
 ## 0.5.0
 * Show a message if nothing was selected
 * Put the php code in a namespace to avoid conflict
